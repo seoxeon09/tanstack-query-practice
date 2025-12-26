@@ -7,7 +7,7 @@ export default function App() {
     queryKey: ['post'],
     queryFn: fetchPosts,
     staleTime: 1000 * 60,
-    gcTime: 1000 * 60 * 5, // 버전 때문에 cacheTime 대신 이걸로 바꿈..
+    gcTime: 1000 * 60 * 5,
   });
 
   if (isLoading) {
