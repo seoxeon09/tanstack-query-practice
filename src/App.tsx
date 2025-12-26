@@ -4,7 +4,7 @@ import type { Post } from './api/posts';
 
 export default function App() {
   const { data, isLoading, isError, error, refetch } = useQuery<Post[]>({
-    queryKey: ['post'],
+    queryKey: ['posts'],
     queryFn: fetchPosts,
     staleTime: 1000 * 60,
     gcTime: 1000 * 60 * 5,
