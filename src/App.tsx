@@ -1,35 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchPosts, createPost } from './api/posts';
+import type { Post } from './api/posts';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const queryClient = useQueryClient();
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+
+  const { data } = useQuery<Post[]>({
+    queryKey: ['posts'],
+    queryFn: fetchPosts,
+  });
+
+  const { mutate } = useMutation({
+    mutationFn: createPost,
+    onSuccess: (newPost) => {
+      queryClient.setQueryData<Post[]>(['posts'], (old) =>
+        old ? [newPost, ...old] : [newPost]
+      );
+    },
+  });
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <h2>게시글 등록</h2>
 
-export default App
+      <input
+        placeholder="제목"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <input
+        placeholder="내용"
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+      />
+
+      <button
+        onClick={() => {
+          mutate({ title, body });
+          setTitle('');
+          setBody('');
+        }}
+      >
+        등록
+      </button>
+
+      <hr />
+
+      <ul>
+        {data?.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
